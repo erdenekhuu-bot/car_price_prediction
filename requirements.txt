@@ -20,7 +20,7 @@ pip==26.2.1
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 requests==2.34.2
-scikit-learn==None
+scikit-learn==1.9.0
 scipy==1.18.1
 seaborn==0.13.2
 six==1.17.0
