@@ -1,5 +1,5 @@
 import React, { useState, useId } from "react";
-import { Layout, theme, Button, Table, ConfigProvider } from "antd";
+import { Layout, theme, Button, Table, ConfigProvider, Flex } from "antd";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,7 +19,6 @@ const App: React.FC = () => {
       return res.data;
     },
   });
-  console.log("data", data);
 
   return (
     <ConfigProvider
@@ -32,12 +31,17 @@ const App: React.FC = () => {
       }}
     >
       <Layout className="!h-screen !flex !flex-row-reverse">
-        <Sider trigger={null} width={500} collapsible collapsed={collapsed} />
+        <Sider trigger={null} width={500} collapsible collapsed={collapsed}>
+          {!collapsed && (
+            <Flex justify="center" align="center" className="!h-full">
+              <span className="text-lg font-bold text-white">Result</span>
+            </Flex>
+          )}
+        </Sider>
 
         <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
-            1
-          </Header>
+          <Header style={{ padding: 0, background: colorBgContainer }} />
+
           <Content
             style={{
               margin: "24px 16px",
