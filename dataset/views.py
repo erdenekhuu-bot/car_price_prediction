@@ -9,8 +9,8 @@ from .serializer import Serializer
 class Limit(LimitOffsetPagination):
     default_limit = 10
     max_limit = 100
-    limit_query_param = 'custom_limit'
-    offset_query_param = 'custom_offset'
+    limit_query_param = 'limit'
+    offset_query_param = 'offset'
 
 class CarViewSet(APIView):
     serializer_class = Serializer
