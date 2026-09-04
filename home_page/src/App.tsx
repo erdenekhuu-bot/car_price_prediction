@@ -1,18 +1,16 @@
-import React, { useState } from "react";
-
 import { Layout, Menu, theme } from "antd";
 
 const { Header, Sider, Content } = Layout;
 
 const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   return (
     <Layout className="!h-screen !flex !flex-row-reverse">
-      <Sider trigger={null} width={500} collapsible collapsed={collapsed}>
+      <Sider trigger={null} width={500} collapsible>
         <Menu
           theme="dark"
           mode="inline"
