@@ -15,12 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from dataset.views import CarViewSet
+from dataset.views import CarViewSet,CarFilter,PredictionView
 from django.urls import path, re_path
 from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', CarViewSet.as_view(), name='api'),
+    path('api/filter/', CarFilter.as_view(), name='filter'),
+    path('api/prediction/', PredictionView.as_view(), name='prediction'),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]

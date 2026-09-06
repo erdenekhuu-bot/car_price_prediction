@@ -2,7 +2,14 @@ import os
 import sys
 import django
 import pandas as pd
-from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+import numpy as np
 import time
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +18,37 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "car_price.settings")
 django.setup()
 
 from dataset.models import CarDataSet
+
+categorical_columns = [
+    'Manufacturer',
+    'Model',
+    'Category',
+    'Leather interior',
+    'Fuel type',
+    'Gear box type',
+    'Drive wheels',
+    'Doors',
+    'Wheel',
+    'Color'
+]
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        (
+            'cat',
+            OneHotEncoder(handle_unknown='ignore'),
+            categorical_columns
+        )
+    ],
+    remainder='passthrough'
+)
+
+models = {
+    'LinearRegression': LinearRegression(),
+    'RandomForest': RandomForestRegressor(random_state=42),
+    'GradientBoosting': GradientBoostingRegressor(random_state=42)
+}
+
 
 class Execute:
     def __init__(self):
@@ -25,11 +63,67 @@ class Execute:
             .str.replace('km', '', regex=False)
             .str.replace(' ', '', regex=False)
         )
-        self.df = self.df[self.df['Levy'] != '-']
-        self.data = self.df.drop_duplicates()
+        self.df['Engine volume'] = (
+            self.df['Engine volume']
+            .astype(str)
+            .str.replace('Turbo', '', regex=False)
+            .str.strip()
+        )
 
-    def execute(self):
-        print(self.data.head(30))
+        self.df['Engine volume'] = pd.to_numeric(
+            self.df['Engine volume'],
+            errors='coerce'
+        )
+        self.df['Mileage'] = pd.to_numeric(
+            self.df['Mileage'],
+            errors='coerce'
+        )
+
+        self.df = self.df[self.df['Levy'] != '-']
+        self.df['Levy'] = pd.to_numeric(
+            self.df['Levy'],
+            errors='coerce'
+        )
+        self.data = self.df.drop_duplicates()
+        self.X = self.data.drop(
+            columns=['Price', 'ID']
+        )
+        self.y = self.data['Price']
+        self.X_encoded = preprocessor.fit_transform(self.X)
+        print(self.X)
+
+    def action(self):
+        X_train, X_test, y_train, y_test = train_test_split(
+            self.X,
+            self.y,
+            test_size=0.2,
+            random_state=42
+        )
+        for name, algorithm in models.items():
+            model = Pipeline([
+                ('preprocessor', preprocessor),
+                ('regression', algorithm)
+            ])
+
+            model.fit(X_train, y_train)
+
+            y_pred = model.predict(X_test)
+
+            print(name,y_pred)
+            print("R2:", r2_score(y_test, y_pred))
+            print("MAE:", mean_absolute_error(y_test, y_pred))
+            print()
+        # model = Pipeline([
+        #     ('preprocessor', preprocessor),
+        #     ('regression', LinearRegression())
+        # ])
+        # model.fit(X_train, y_train)
+        # y_pred = model.predict(X_test)
+        # print(y_pred)
+
+        # mae = mean_absolute_error(y_test, y_pred)
+        # rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        # r2 = r2_score(y_test, y_pred)
 
     def sync_data(self):
         records=self.data.to_dict(orient='records')
@@ -64,7 +158,7 @@ class Execute:
 
 def main():
     app = Execute()
-    app.sync_data()
+    app.action()
 
 if __name__ == "__main__":
     main()

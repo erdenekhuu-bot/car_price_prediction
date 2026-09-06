@@ -1,26 +1,58 @@
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.pagination import LimitOffsetPagination
 from .models import CarDataSet
 from .serializer import Serializer
+from rest_framework.response import Response
 
 # Create your views here.
 
-class Limit(LimitOffsetPagination):
-    default_limit = 10
-    max_limit = 100
-    limit_query_param = 'limit'
-    offset_query_param = 'offset'
+class StandardResultsSetPagination(LimitOffsetPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class CarViewSet(APIView):
     serializer_class = Serializer
 
-    def get(self,request):
+    def get(self, request):
         car_dataset = CarDataSet.objects.all()
-        manufacturer = request.query_params.get('manufacturer')
+        manufacturer = request.query_params.get('search')
+
         if manufacturer:
             car_dataset = car_dataset.filter(manufacturer__icontains=manufacturer)
-        paginator = Limit()
+
+        paginator = StandardResultsSetPagination()
         paginated_cars = paginator.paginate_queryset(car_dataset, request, view=self)
         serializer = self.serializer_class(paginated_cars, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+    def post(self,request):
+        pass
+
+class CarFilter(APIView):
+    serializer_class = Serializer
+
+    def get(self, request):
+        # car_dataset = CarDataSet.objects.filter(manufacturer__icontains=request.data.get('manufacturer'))
+        car_dataset = CarDataSet.objects.filter(manufacturer__icontains=request.query_params.get('search'))
+        paginator = StandardResultsSetPagination()
+        paginated_cars = paginator.paginate_queryset(car_dataset, request, view=self)
+        serializer = self.serializer_class(paginated_cars, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
+class PredictionView(APIView):
+    serializer_class = Serializer
+
+    def post(self, request):
+        car_dataset = CarDataSet.objects.get(id=request.data.get('id'))
+
+        serializer = self.serializer_class(car_dataset, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
