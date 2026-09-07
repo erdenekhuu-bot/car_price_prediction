@@ -12,6 +12,7 @@ from sklearn.compose import ColumnTransformer
 import numpy as np
 import time
 import math
+from sklearn.metrics import mean_absolute_percentage_error
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
@@ -92,7 +93,7 @@ class Execute:
             ('preprocessor', preprocessor),
             ('regression', LinearRegression())
         ])
-        X_train, X_test, y_train, y_test = train_test_split(
+        X_train, self.X_test, y_train, self.y_test = train_test_split(
             self.X,
             self.y,
             test_size=0.2, # split 80%
@@ -109,7 +110,7 @@ class Execute:
         )
         model = Pipeline([
             ('preprocessor', preprocessor),
-            ('regression', LinearRegression())
+            ('regression', RandomForestRegressor(random_state=42))
         ])
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
@@ -159,6 +160,18 @@ class Execute:
         single_features = self.prepare_single_car(car_instance)
         prediction = self.model.predict(single_features)
         return math.ceil(float(prediction[0]))
+
+    def evaluate(self):
+        y_pred = self.model.predict(self.X_test)
+        mae = mean_absolute_error(self.y_test, y_pred)
+        rmse = math.sqrt(mean_squared_error(self.y_test, y_pred))
+        accuracy = r2_score(self.y_test, y_pred) * 100
+        mape = mean_absolute_percentage_error(
+            self.y_test,
+            y_pred
+        ) * 100
+        print(accuracy, mae, rmse,mape)
+        return round(accuracy, 2)
 
     # only view to rest api
     def sync_data(self):

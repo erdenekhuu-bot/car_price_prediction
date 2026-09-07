@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from pandas.core.computation.expressions import evaluate
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -55,6 +56,7 @@ class PredictionView(APIView):
             car_instance = serializer.save()
             app = Execute()
             predicted_price = math.ceil(float(app.predict(car_instance))*3600.39)
+            evaluated=app.evaluate()
 
             return Response({
                 "price": round(predicted_price, 2),
@@ -63,6 +65,7 @@ class PredictionView(APIView):
                 'fuel_type': car_instance.fuel_type,
                 'mileage': car_instance.mileage,
                 'list_category': self.category,
+                'evaluated': evaluated,
             })
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

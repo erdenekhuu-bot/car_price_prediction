@@ -1,0 +1,17 @@
+{
+  "manufacturer": "Үйлдвэрлэгч",
+  "model": "Загвар",
+  "production_year": "Үйлдвэрлэсэн он",
+  "fuel_type": "Түлшний төрөл",
+  "engine_volume": "Хөдөлгүүрийн багтаамж",
+  "action": "Үйлдэл",
+  "back": "Буцах",
+  "result": "Үр дүн",
+  "price": "Үнэ",
+  "currency": "Вальют",
+  "category": "Ангилал",
+  "fueltype": "Хөдөлгүүрийн төрөл",
+  "mileage": "Явсан км",
+  "loading": "Түр хүлээнэ үү",
+  "evaluated": "Нарийвчлал"
+}

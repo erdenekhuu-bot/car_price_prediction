@@ -1,0 +1,17 @@
+{
+  "manufacturer": "Manufacturer",
+  "model": "Model",
+  "production_year": "Production Year",
+  "fuel_type": "Fuel Type",
+  "engine_volume": "Engine Volume",
+  "action": "Action",
+  "back": "Back",
+  "result": "Result",
+  "price": "Pirce",
+  "currency": "Currency",
+  "category": "Category",
+  "fueltype": "Fuel type",
+  "mileage": "Mileage",
+  "loading": "Loading",
+  "evaluated": "Accuracy"
+}

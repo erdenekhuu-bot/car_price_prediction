@@ -9,6 +9,7 @@ import {
   Spin,
   Form,
   Image,
+  Switch,
 } from "antd";
 import axios from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -22,6 +23,7 @@ import minivan from "./images/minivan.jpg";
 import pickup from "./images/pickup.jpg";
 import sedan from "./images/sedan.jpg";
 import universal from "./images/universal.jpg";
+import { useTranslation } from "react-i18next";
 
 const { Header, Sider, Content } = Layout;
 
@@ -34,6 +36,10 @@ const App: React.FC = () => {
     current: 1,
     pageSize: 10,
   });
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   const [checkout, setCheckout] = useState(true);
   const [form] = Form.useForm();
@@ -102,6 +108,7 @@ const App: React.FC = () => {
         fuel_type: mutation.data.fuel_type,
         mileage: mutation.data.mileage,
         list_category: mutation.data.list_category,
+        evaluated: mutation.data.evaluated,
       });
     }
   }, [mutation.data, form]);
@@ -133,7 +140,7 @@ const App: React.FC = () => {
             >
               <div className="w-full flex-1 flex justify-center items-center">
                 {mutation.isPending ? (
-                  <Spin description="Loading..." size="large" />
+                  <Spin description={`${t("loading")}...`} size="large" />
                 ) : (
                   <Form
                     form={form}
@@ -153,11 +160,14 @@ const App: React.FC = () => {
                     <p className="text-center text-5xl font-bold text-green-500 mb-12">
                       {mutation.data?.price}
                     </p>
-                    <p className="text-xl font-bold text-white">Result: </p>
+                    <p className="text-xl font-bold text-white">
+                      {" "}
+                      {t("result")}:{" "}
+                    </p>
                     <Form.Item label="Price" name="price">
                       <Flex gap={8}>
                         <span className="text-base font-medium text-white">
-                          Price:
+                          {t("price")}:
                         </span>
                         <span className="text-base text-white">
                           {mutation.data?.price}
@@ -167,7 +177,7 @@ const App: React.FC = () => {
                     <Form.Item label="" name="currency">
                       <Flex gap={8}>
                         <span className="text-base font-medium text-white">
-                          Currency:
+                          {t("currency")}:
                         </span>
                         <span className="text-base text-white">
                           {mutation.data?.currency}
@@ -178,7 +188,7 @@ const App: React.FC = () => {
                     <Form.Item label="" name="category">
                       <Flex gap={8}>
                         <span className="text-base font-medium text-white">
-                          Category:
+                          {t("category")}:
                         </span>
                         <span className="text-base text-white">
                           {mutation.data?.category}
@@ -189,7 +199,7 @@ const App: React.FC = () => {
                     <Form.Item label="" name="fuel_type">
                       <Flex gap={8}>
                         <span className="text-base font-medium text-white">
-                          Fuel Type:
+                          {t("fueltype")}:
                         </span>
                         <span className="text-base text-white">
                           {mutation.data?.fuel_type}
@@ -199,16 +209,23 @@ const App: React.FC = () => {
                     <Form.Item label="" name="mileage">
                       <Flex gap={8}>
                         <span className="text-base font-medium text-white">
-                          Mileage:
+                          {t("mileage")}:
                         </span>
                         <span className="text-base text-white">
                           {`${mutation.data?.mileage} km`}
                         </span>
                       </Flex>
                     </Form.Item>
-                    <Form.Item label="" name="confidence">
+                    <Form.Item label="" name="evaluated">
                       <span className="text-base font-medium text-white">
-                        {mutation.data?.confidence}
+                        <Flex gap={8}>
+                          <span className="text-base font-medium text-white">
+                            {t("evaluated")}:
+                          </span>
+                          <span className="text-base text-white">
+                            {mutation.data?.evaluated}
+                          </span>
+                        </Flex>
                       </span>
                     </Form.Item>
                   </Form>
@@ -216,14 +233,21 @@ const App: React.FC = () => {
               </div>
 
               <Button block onClick={() => setCheckout(true)}>
-                Back
+                {t("back")}
               </Button>
             </Flex>
           )}
         </Sider>
 
         <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }} />
+          <Header style={{ padding: 0, background: colorBgContainer }}>
+            <Flex justify="end" align="center" className="!h-full !px-6">
+              <Switch
+                defaultChecked
+                onChange={(checked) => changeLanguage(checked ? "mn" : "en")}
+              />
+            </Flex>
+          </Header>
 
           <Content
             style={{
@@ -239,32 +263,32 @@ const App: React.FC = () => {
               dataSource={data?.results || []}
               columns={[
                 {
-                  title: "Manufacturer",
+                  title: t("manufacturer"),
                   dataIndex: "manufacturer",
                   key: "manufacturer",
                 },
                 {
-                  title: "Model",
+                  title: t("model"),
                   dataIndex: "model",
                   key: "model",
                 },
                 {
-                  title: "Production Year",
+                  title: t("production_year"),
                   dataIndex: "prod_year",
                   key: "prod_year",
                 },
                 {
-                  title: "Fuel Type",
+                  title: t("fuel_type"),
                   dataIndex: "fuel_type",
                   key: "fuel_type",
                 },
                 {
-                  title: "Engine Volume",
+                  title: t("engine_volume"),
                   dataIndex: "engine_volume",
                   key: "engine_volume",
                 },
                 {
-                  title: "Mileage (km)",
+                  title: t("mileage"),
                   dataIndex: "mileage",
                   key: "mileage",
                 },
@@ -280,7 +304,7 @@ const App: React.FC = () => {
                         mutation.mutate({ id });
                       }}
                     >
-                      Action
+                      {t("action")}
                     </Button>
                   ),
                 },
