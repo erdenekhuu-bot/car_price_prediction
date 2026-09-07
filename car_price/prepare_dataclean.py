@@ -49,7 +49,6 @@ models = {
     'GradientBoosting': GradientBoostingRegressor(random_state=42)
 }
 
-
 class Execute:
     def __init__(self):
         self.app=CarDataSet
@@ -69,7 +68,6 @@ class Execute:
             .str.replace('Turbo', '', regex=False)
             .str.strip()
         )
-
         self.df['Engine volume'] = pd.to_numeric(
             self.df['Engine volume'],
             errors='coerce'
@@ -78,7 +76,6 @@ class Execute:
             self.df['Mileage'],
             errors='coerce'
         )
-
         self.df = self.df[self.df['Levy'] != '-']
         self.df['Levy'] = pd.to_numeric(
             self.df['Levy'],
@@ -90,7 +87,6 @@ class Execute:
         )
         self.y = self.data['Price']
         self.X_encoded = preprocessor.fit_transform(self.X)
-        print(self.X)
 
     def action(self):
         X_train, X_test, y_train, y_test = train_test_split(
@@ -99,31 +95,16 @@ class Execute:
             test_size=0.2,
             random_state=42
         )
-        for name, algorithm in models.items():
-            model = Pipeline([
-                ('preprocessor', preprocessor),
-                ('regression', algorithm)
-            ])
-
-            model.fit(X_train, y_train)
-
-            y_pred = model.predict(X_test)
-
-            print(name,y_pred)
-            print("R2:", r2_score(y_test, y_pred))
-            print("MAE:", mean_absolute_error(y_test, y_pred))
-            print()
-        # model = Pipeline([
-        #     ('preprocessor', preprocessor),
-        #     ('regression', LinearRegression())
-        # ])
-        # model.fit(X_train, y_train)
-        # y_pred = model.predict(X_test)
-        # print(y_pred)
-
-        # mae = mean_absolute_error(y_test, y_pred)
-        # rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        # r2 = r2_score(y_test, y_pred)
+        model = Pipeline([
+            ('preprocessor', preprocessor),
+            ('regression', LinearRegression())
+        ])
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        r2 = r2_score(y_test, y_pred)
+        print(y_pred)
 
     def sync_data(self):
         records=self.data.to_dict(orient='records')
