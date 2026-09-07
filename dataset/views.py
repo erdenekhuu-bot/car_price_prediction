@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from .models import CarDataSet
 from .serializer import Serializer
 from rest_framework.response import Response
 
 # Create your views here.
 
-class StandardResultsSetPagination(LimitOffsetPagination):
+class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
@@ -28,8 +28,6 @@ class CarViewSet(APIView):
         serializer = self.serializer_class(paginated_cars, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-    def post(self,request):
-        pass
 
 class CarFilter(APIView):
     serializer_class = Serializer
