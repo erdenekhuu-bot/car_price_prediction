@@ -44,6 +44,10 @@ class CarFilter(APIView):
 class PredictionView(APIView):
     serializer_class = Serializer
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.category=CarDataSet.objects.values_list('category', flat=True).distinct()
+
     def post(self, request):
         car_dataset = CarDataSet.objects.get(id=request.data.get('id'))
         serializer = self.serializer_class(car_dataset, data=request.data, partial=True)
@@ -53,8 +57,12 @@ class PredictionView(APIView):
             predicted_price = math.ceil(float(app.predict(car_instance))*3600.39)
 
             return Response({
-                "message": "Successfully predicted",
-                "predicted_price": round(predicted_price, 2)
+                "price": round(predicted_price, 2),
+                "currency": "MNT",
+                'category': car_instance.category,
+                'fuel_type': car_instance.fuel_type,
+                'mileage': car_instance.mileage,
+                'list_category': self.category,
             })
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
