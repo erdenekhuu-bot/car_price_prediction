@@ -31,7 +31,7 @@ const App: React.FC = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (newCar: any) => {
+    mutationFn: async (newCar: { id: string }) => {
       const res = await axios.post(
         "http://127.0.0.1:8000/api/prediction/",
         newCar,
@@ -51,7 +51,13 @@ const App: React.FC = () => {
       }}
     >
       <Layout className="!h-screen !flex !flex-row-reverse">
-        <Sider trigger={null} width={500} collapsible collapsed={checkout}>
+        <Sider
+          trigger={null}
+          width={500}
+          collapsible
+          collapsed={checkout}
+          className="!bg-[#1f1f1f] !z-10 !overflow-hidden !transition-all !duration-300"
+        >
           {!checkout && (
             <Flex justify="center" align="center" className="!h-full">
               {mutation.isPending ? (

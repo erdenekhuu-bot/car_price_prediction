@@ -5,7 +5,8 @@ from rest_framework.pagination import PageNumberPagination
 from .models import CarDataSet
 from .serializer import Serializer
 from rest_framework.response import Response
-
+from car_price.prepare_dataclean import Execute
+import math
 # Create your views here.
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -33,7 +34,6 @@ class CarFilter(APIView):
     serializer_class = Serializer
 
     def get(self, request):
-        # car_dataset = CarDataSet.objects.filter(manufacturer__icontains=request.data.get('manufacturer'))
         car_dataset = CarDataSet.objects.filter(manufacturer__icontains=request.query_params.get('search'))
         paginator = StandardResultsSetPagination()
         paginated_cars = paginator.paginate_queryset(car_dataset, request, view=self)
@@ -46,11 +46,15 @@ class PredictionView(APIView):
 
     def post(self, request):
         car_dataset = CarDataSet.objects.get(id=request.data.get('id'))
-
         serializer = self.serializer_class(car_dataset, data=request.data, partial=True)
-
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            car_instance = serializer.save()
+            app = Execute()
+            predicted_price = math.ceil(float(app.predict(car_instance))*3600.39)
+
+            return Response({
+                "message": "Successfully predicted",
+                "predicted_price": round(predicted_price, 2)
+            })
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
