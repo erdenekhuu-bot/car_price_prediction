@@ -45,12 +45,6 @@ preprocessor = ColumnTransformer(
     remainder='passthrough'
 )
 
-models = {
-    'LinearRegression': LinearRegression(),
-    'RandomForest': RandomForestRegressor(random_state=42),
-    'GradientBoosting': GradientBoostingRegressor(random_state=42)
-}
-
 class Execute:
     def __init__(self):
         self.app=CarDataSet
@@ -91,33 +85,19 @@ class Execute:
         self.y = self.data['Price']
         self.model = Pipeline([
             ('preprocessor', preprocessor),
-            ('regression', LinearRegression())
+            ('regression', RandomForestRegressor(
+                n_estimators=200,
+                random_state=42,
+                n_jobs=-1
+            ))
         ])
-        X_train, self.X_test, y_train, self.y_test = train_test_split(
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X,
             self.y,
             test_size=0.2, # split 80%
             random_state=42
         )
-        self.model.fit(X_train, y_train)
-
-    def action(self):
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.X,
-            self.y,
-            test_size=0.2,
-            random_state=42
-        )
-        model = Pipeline([
-            ('preprocessor', preprocessor),
-            ('regression', RandomForestRegressor(random_state=42))
-        ])
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        mae = mean_absolute_error(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        r2 = r2_score(y_test, y_pred)
-        print([y_pred,mae,rmse,r2])
+        self.model.fit(self.X_train, self.y_train)
 
     def prepare_single_car(self, car_instance):
         data_dict = {
@@ -170,7 +150,6 @@ class Execute:
             self.y_test,
             y_pred
         ) * 100
-        print(accuracy, mae, rmse,mape)
         return round(accuracy, 2)
 
     # only view to rest api
